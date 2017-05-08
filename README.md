@@ -111,7 +111,7 @@ content://com.mydomain.fileprovider/my_images/default_image.jpg
 5. 在接受方Activity在栈中存活的情况下,被赋予Intent权限中仍然有效.当栈被销毁的时候,权限将自动被移除.权限将自动扩展到该app的其他组件,并授权给其中的一个Activy.
 
 
-##给另一个App提供URI
+## 给另一个App提供URI
 有各种各样的方式去吧一个文件的content URI提供给目标app.一个通用的方式是通过调用startActivityResult()有目标app启动你的app,目标app给你的app发送一个Intent去启动你的一个Activity,对此,你的app可以及时的给目标app返回一个content URI或者提供一个界面供用户选择文件.在最后一种情况下,一旦用户选择了文件,你的app就能返回它的content URI.以上联众情况,你的app都可以通过setREsult()发送包含有content URI的Intent
 
 你也可以把content URI放到ClipData对象中,然后把对象添加到Intent中发送给你的目标app.要做到这一点,调用Intent.setClipData().当你用这个方法的时候,你能添加多种ClipData对象给Intent,每一个都有自己的content URI,当你调用通过Intent调用Intent.setFlags()设置临时权限的时候,所有的content URI都将有相同的权限.
