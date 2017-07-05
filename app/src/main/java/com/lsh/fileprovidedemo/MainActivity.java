@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -40,8 +41,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         mImageView = (ImageView) findViewById(R.id.imageView);
     }
 
-    @AfterPermissionGranted(RC_STORAGE_PREM)
+
     public void cropImage(View view) {
+        requestPermiession();
+
+    }
+
+    @AfterPermissionGranted(RC_STORAGE_PREM)
+    private void requestPermiession() {
         mPerms = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE};
         if (EasyPermissions.hasPermissions(this, mPerms)) {
             Intent intent = new Intent(Intent.ACTION_PICK);
@@ -53,13 +60,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             EasyPermissions.requestPermissions(this, getString(R.string.tishi),
                     RC_STORAGE_PREM, mPerms);
         }
-
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (data.getData() != null) {
+        if (data!=null&&data.getData() != null) {
             switch (requestCode) {
                 case SelectPhoto:
                     Uri uri = data.getData();
@@ -89,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         intent.putExtra("outputY", 250);
         intent.putExtra("outputFormat", "JPEG");// 图片格式
         intent.putExtra("noFaceDetection", true);// 取消人脸识别
-        intent.putExtra("return-data", false);
+        intent.putExtra("return-data", true);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, getCachePath()+"Cache");
         // 开启一个带有返回值的Activity，请求码为PHOTO_REQUEST_CUT
         startActivityForResult(intent, tag);
@@ -144,23 +150,34 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     @Override
     public void onPermissionsGranted(int requestCode, List<String> perms) {
-        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
-            new AppSettingsDialog.Builder(this).setTitle("提示")
-                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    })
-                    .setPositiveButton("设置")
-                    .setRationale("赶紧开权限")
-                    .build()
-                    .show();
-        }
+
     }
 
     @Override
     public void onPermissionsDenied(int requestCode, List<String> perms) {
+        if (requestCode == RC_STORAGE_PREM) {
+            if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+                new AppSettingsDialog.Builder(this).setTitle("提示")
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setPositiveButton("设置")
+                        .setRationale("赶紧开权限")
+                        .build()
+                        .show();
+            }
+        }
+    }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[]
+            grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // EasyPermissions handles the request result.
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
 }
